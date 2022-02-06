@@ -12,6 +12,7 @@ contract Betting {
     address payable[] playersAll;
     uint256[] public topBetsTeamOne;
     uint256[] public topBetsTeamTwo;
+    uint256 internal gasCost;
 
     //    uint256 amountBet;
 
@@ -29,6 +30,7 @@ contract Betting {
         minimumBet = 100000000000000; //dynamic: calculate maximum gas fees + minting price + safety margin
         amountOfPrizes = _amountOfPrizes;
         open_to_bet = true;
+        gasCost = 199462 + 40000; //20% marge
         topBetsTeamOne = [0, 0, 0, 0, 0]; //testando
         topBetsTeamTwo = [0, 0, 0, 0, 0];
     }
@@ -141,6 +143,7 @@ contract Betting {
     }
 
     function getNFT(address payable player, uint256 valueGain) internal {
+        // TO DO: Insert contract NFT
         player.transfer(valueGain);
     }
 
