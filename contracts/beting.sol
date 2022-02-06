@@ -19,8 +19,8 @@ contract Betting {
     mapping(address => uint256) public betsTeamOne;
     mapping(address => uint256) public betsTeamTwo;
 
-    mapping(uint256 => address) topPlayersTeamOne;
-    mapping(uint256 => address) topPlayersTeamTwo;
+    mapping(uint256 => address payable) topPlayersTeamOne;
+    mapping(uint256 => address payable) topPlayersTeamTwo;
 
     function() external payable {}
 
@@ -140,10 +140,15 @@ contract Betting {
         }
     }
 
+    function getNFT(address payable player, uint256 valueGain) internal {
+        player.transfer(valueGain);
+    }
+
     function distributePrizes(uint16 teamWinner) public {
         open_to_bet = false;
         uint256 LoserBet = 0;
         uint256 WinnerBet = 0;
+        uint256 calculateNFT = 0;
 
         if (teamWinner == 1) {
             LoserBet = totalBetsTwo;
@@ -152,21 +157,32 @@ contract Betting {
             LoserBet = totalBetsOne;
             WinnerBet = totalBetsTwo;
         }
+        //LoserBet tá sobrando
 
         if (teamWinner == 1) {
+            //Back money
+            for (uint256 j = 0; j < playersTeamOne.length; j++) {
+                playersTeamOne[j].transfer(
+                    ((10000 + (10000 / WinnerBet))) / 10000
+                );
+            }
+
+            //NFT
             for (uint256 i = 0; i < topBetsTeamOne.length; i++) {
-                for (uint256 j = 0; i < playersTeamOne.length; j++) {
-                    if (
-                        playersTeamOne[j] !=
-                        topPlayersTeamOne[topBetsTeamOne[i]]
-                    ) {
-                        playersTeamOne[j].transfer(
-                            ((10000 + ((LoserBet * 10000) / WinnerBet))) / 10000
-                        );
-                    }
-                }
+                calculateNFT = LoserBet / topBetsTeamOne.length;
+                getNFT(topPlayersTeamOne[topBetsTeamOne[i]], calculateNFT);
             }
         }
+
+        delete playersTeamOne;
+        delete playersTeamTwo;
+        delete playersAll;
+        delete topBetsTeamOne;
+        delete topBetsTeamTwo;
+        LoserBet = 0;
+        WinnerBet = 0;
+        totalBetsOne = 0;
+        totalBetsTwo = 0;
     }
 
     function AmountOne() public view returns (uint256) {
