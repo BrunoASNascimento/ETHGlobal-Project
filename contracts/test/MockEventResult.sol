@@ -19,6 +19,12 @@ contract MockEventResult {
         return bytes32("team1");
     }
 
+    function isFinished() public pure returns (bool) {
+        //onlyLINK
+        // for mocking purposes, we will simply return this for now
+        return bool(true);
+    }
+
     // modifier onlyLINK() {
     //     require(msg.sender == address(LINK), "Must use LINK token");
     //     _;

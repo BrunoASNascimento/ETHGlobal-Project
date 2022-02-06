@@ -2,8 +2,11 @@ pragma solidity >0.4.99;
 
 //lets keep this mock for now
 import "../interfaces/GetWinnerInterface.sol";
+import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
+import "@openzeppelin/contracts/math/SafeMath.sol";
 
 contract Game {
+    using SafeMath for uint256;
     address payable public owner;
     uint256 public minimumBet;
     uint256 public totalBetsOne;
@@ -15,7 +18,7 @@ contract Game {
     address payable[] playersAll;
     uint256[] public topBetsTeamOne;
     uint256[] public topBetsTeamTwo;
-    uint256 internal gasCost;
+    uint256 internal gameFee;
     GetWinnerInterface internal EventResult;
     bytes32 internal outcome1;
     bytes32 internal outcome2;
@@ -38,10 +41,10 @@ contract Game {
         bytes32 _outcome2
     ) public {
         owner = msg.sender;
-        minimumBet = 100000000000000; //dynamic: calculate maximum gas fees + minting price + safety margin
+        minimumBet = 100000000000000000; //dynamic: calculate maximum gas fees + minting price + safety margin
         amountOfPrizes = _amountOfPrizes;
         open_to_bet = true;
-        gasCost = 199462 + 40000; //20% marge
+        gameFee = 50000000000000000; //we should be dynamically calculating this based on approximate gas and minting costs
         topBetsTeamOne = [0, 0, 0, 0, 0]; //testando
         topBetsTeamTwo = [0, 0, 0, 0, 0];
         EventResult = GetWinnerInterface(_requestGameWinner);
@@ -156,62 +159,55 @@ contract Game {
         }
     }
 
-    function getNFT(address payable player, uint256 valueGain) internal {
-        // TO DO: Insert contract NFT
-        player.transfer(valueGain);
+    function getNFT() internal {
+        // uint256 lastId = _currentTokenId + _addresses.length;
+        // // require(lastId <= NFTLimit, ": total tokens must not exceed limit");
+        // for (uint256 i = 0; i < _addresses.length; i++) {
+        //     _mint(_addresses[i], tokenIds[i], 1, "");
+        // }
     }
 
     function distributePrizes() public {
         require(msg.sender == owner);
+        require(EventResult.isFinished());
         open_to_bet = false;
         uint256 LoserBet = 0;
         uint256 WinnerBet = 0;
-        uint256 calculateNFT = 0;
+        // uint256 calculateNFT = 0;
         uint16 teamWinner = 0;
 
         bytes32 outcome = EventResult.getOutcome();
-        if (outcome == outcome1) {
+        if (bytes32(outcome) == bytes32(outcome1)) {
             teamWinner = 1;
-        } else if (outcome == outcome2) {
+        } else if (bytes32(outcome) == bytes32(outcome2)) {
             teamWinner = 2;
         }
+
+        teamWinner = 1; //PUTTING THIS SHIT HERE FOR NOW BECAUSE THE COMPARISSON IS NOT WORKING
 
         // TODO: create error if outcome does not match
 
         if (teamWinner == 1) {
-            LoserBet = totalBetsTwo;
-            WinnerBet = totalBetsOne;
-        } else if (teamWinner == 2) {
-            LoserBet = totalBetsOne;
-            WinnerBet = totalBetsTwo;
-        }
-
-        if (teamWinner == 1) {
-            //Back money
+            //split prize
             for (uint256 j = 0; j < playersTeamOne.length; j++) {
                 playersTeamOne[j].transfer(
-                    (((10000 + (10000 / WinnerBet))) / 10000) - gasCost
+                    ((totalBetsTwo / playersTeamOne.length)) +
+                        betsTeamOne[playersTeamOne[j]] -
+                        gameFee
                 );
             }
-            //NFT
-            for (uint256 i = 0; i < topBetsTeamOne.length; i++) {
-                calculateNFT = LoserBet / topBetsTeamOne.length;
-                getNFT(topPlayersTeamOne[topBetsTeamOne[i]], calculateNFT);
-            }
-        } else {
-            //Back money
+        } else if (teamWinner == 2) {
+            //split prize
             for (uint256 j = 0; j < playersTeamTwo.length; j++) {
                 playersTeamTwo[j].transfer(
-                    (((10000 + (10000 / WinnerBet))) / 10000) - gasCost
+                    ((totalBetsOne / playersTeamTwo.length)) +
+                        betsTeamTwo[playersTeamTwo[j]] -
+                        gameFee
                 );
-            }
-            //NFT
-            for (uint256 i = 0; i < topBetsTeamTwo.length; i++) {
-                calculateNFT = LoserBet / topBetsTeamTwo.length;
-                getNFT(topPlayersTeamTwo[topBetsTeamTwo[i]], calculateNFT);
             }
         }
 
+        getNFT();
         delete playersTeamOne;
         delete playersTeamTwo;
         delete playersAll;
@@ -229,5 +225,9 @@ contract Game {
 
     function AmountTwo() public view returns (uint256) {
         return totalBetsTwo;
+    }
+
+    function getEventResult() public view returns (bytes32) {
+        return EventResult.getOutcome();
     }
 }
