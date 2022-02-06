@@ -58,11 +58,12 @@ class TestGame:
     def test_sum_of_bets(self, game, team1, team2):
         # test que o endereco da aposta, caso ja exista no top5, aumente o valor da sua aposta na lista de top5
         account = get_account()
+        account2 = get_account(2)
         # game.playersTeamOne = team1[0]
         # game.playersTeamTwo = team2[0]
         game.bet(1, {"from": account, "value": 7 * 10 ** 18})
-        game.bet(2, {"from": account, "value": 7 * 10 ** 18})
-        game.bet(2, {"from": account, "value": 7 * 10 ** 18})
+        game.bet(2, {"from": account2, "value": 7 * 10 ** 18})
+        game.bet(2, {"from": account2, "value": 7 * 10 ** 18})
         assert game.totalBetsOne() == 7 * 10 ** 18
         assert game.totalBetsTwo() == 14 * 10 ** 18
 

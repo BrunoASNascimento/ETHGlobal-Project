@@ -122,8 +122,8 @@ contract Game {
                 // We had to add this as an emergency fix. a same address will
                 // not be able to bet on two different teams. If someone wants
                 // to bet on both outcomes they will need to use two addresses.
-                for (uint256 i = 0; i < betsTeamTwo.length; i++) {
-                    require(betsTeamTwo[i] != msg.sender);
+                for (uint256 i = 0; i < playersTeamTwo.length; i++) {
+                    require(playersTeamTwo[i] != msg.sender);
                 }
                 // -----------------------------------------------------------
                 bool addedToTop = false;
@@ -148,8 +148,8 @@ contract Game {
                 // We had to add this as an emergency fix. a same address will
                 // not be able to bet on two different teams. If someone wants
                 // to bet on both outcomes they will need to use two addresses.
-                for (uint256 i = 0; i < betsTeamOne.length; i++) {
-                    require(betsTeamOne[i] != msg.sender);
+                for (uint256 i = 0; i < playersTeamOne.length; i++) {
+                    require(playersTeamOne[i] != msg.sender);
                 }
                 // -----------------------------------------------------------
 
