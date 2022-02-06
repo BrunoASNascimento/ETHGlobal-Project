@@ -20,8 +20,8 @@ def deploy_game(amount_of_prizes, outcome1, outcome2, mocked=True):
     return game
 
 
-def bet(team, amount):
-    account = get_account()
+def bet(team, amount, account_number=0):
+    account = get_account(account_number)
     game = Game[-1]  # this means get latest deployed version of contract!
     tx = game.bet(team, {"from": account, "value": amount})
     tx.wait(1)
