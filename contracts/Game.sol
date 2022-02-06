@@ -45,8 +45,8 @@ contract Game {
         amountOfPrizes = _amountOfPrizes;
         open_to_bet = true;
         gameFee = 50000000000000000; //we should be dynamically calculating this based on approximate gas and minting costs
-        topBetsTeamOne.length = _amountOfPrizes;
-        topBetsTeamTwo.length = _amountOfPrizes;
+        topBetsTeamOne = constructorArraysByLength(_amountOfPrizes);
+        topBetsTeamTwo = constructorArraysByLength(_amountOfPrizes);
         EventResult = GetWinnerInterface(_requestGameWinner);
         outcome1 = _outcome1;
         outcome2 = _outcome2;
@@ -54,6 +54,14 @@ contract Game {
 
     function kill() public {
         if (msg.sender == owner) selfdestruct(owner); // remove this
+    }
+
+    function constructorArraysByLength(uint256 _amountOfPrizes)
+        internal
+        returns (uint256[] memory)
+    {
+        uint256[] memory result = new uint256[](_amountOfPrizes);
+        return result;
     }
 
     function checkPlayerExists(address payable player)
