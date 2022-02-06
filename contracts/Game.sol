@@ -45,8 +45,8 @@ contract Game {
         amountOfPrizes = _amountOfPrizes;
         open_to_bet = true;
         gameFee = 50000000000000000; //we should be dynamically calculating this based on approximate gas and minting costs
-        topBetsTeamOne = [0, 0, 0, 0, 0]; //testando
-        topBetsTeamTwo = [0, 0, 0, 0, 0];
+        topBetsTeamOne.length = _amountOfPrizes;
+        topBetsTeamTwo.length = _amountOfPrizes;
         EventResult = GetWinnerInterface(_requestGameWinner);
         outcome1 = _outcome1;
         outcome2 = _outcome2;
