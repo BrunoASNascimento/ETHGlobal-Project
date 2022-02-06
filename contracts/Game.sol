@@ -1,6 +1,9 @@
 pragma solidity >0.4.99;
 
-contract Betting {
+//lets keep this mock for now
+import "../interfaces/GetWinnerInterface.sol";
+
+contract Game {
     address payable public owner;
     uint256 public minimumBet;
     uint256 public totalBetsOne;
@@ -13,6 +16,9 @@ contract Betting {
     uint256[] public topBetsTeamOne;
     uint256[] public topBetsTeamTwo;
     uint256 internal gasCost;
+    GetWinnerInterface internal EventResult;
+    bytes32 internal outcome1;
+    bytes32 internal outcome2;
 
     //    uint256 amountBet;
 
@@ -23,9 +29,14 @@ contract Betting {
     mapping(uint256 => address payable) topPlayersTeamOne;
     mapping(uint256 => address payable) topPlayersTeamTwo;
 
-    function() external payable {}
+    // function() external payable {}
 
-    constructor(uint256 _amountOfPrizes) public {
+    constructor(
+        uint256 _amountOfPrizes,
+        address _requestGameWinner,
+        bytes32 _outcome1,
+        bytes32 _outcome2
+    ) public {
         owner = msg.sender;
         minimumBet = 100000000000000; //dynamic: calculate maximum gas fees + minting price + safety margin
         amountOfPrizes = _amountOfPrizes;
@@ -33,6 +44,9 @@ contract Betting {
         gasCost = 199462 + 40000; //20% marge
         topBetsTeamOne = [0, 0, 0, 0, 0]; //testando
         topBetsTeamTwo = [0, 0, 0, 0, 0];
+        EventResult = GetWinnerInterface(_requestGameWinner);
+        outcome1 = _outcome1;
+        outcome2 = _outcome2;
     }
 
     function kill() public {
@@ -147,22 +161,33 @@ contract Betting {
         player.transfer(valueGain);
     }
 
-    function distributePrizes(uint16 teamWinner) public {
+    function distributePrizes() public {
         open_to_bet = false;
         uint256 LoserBet = 0;
         uint256 WinnerBet = 0;
         uint256 calculateNFT = 0;
+        uint16 teamWinner = 0;
+
+        bytes32 outcome = EventResult.getOutcome();
+        if (outcome == outcome1) {
+            teamWinner = 1;
+        } else if (outcome == outcome2) {
+            teamWinner = 2;
+        }
+
+        // TODO: create error if outcome does not match
 
         if (teamWinner == 1) {
             LoserBet = totalBetsTwo;
             WinnerBet = totalBetsOne;
-        } else {
+        } else if (teamWinner == 2) {
             LoserBet = totalBetsOne;
             WinnerBet = totalBetsTwo;
         }
         //LoserBet tá sobrando
 
         if (teamWinner == 1) {
+            //CADE O CASO TIME 2 GANHE?????????????????????????????????????????????????????????????????????????????
             //Back money
             for (uint256 j = 0; j < playersTeamOne.length; j++) {
                 playersTeamOne[j].transfer(
@@ -174,6 +199,7 @@ contract Betting {
             for (uint256 i = 0; i < topBetsTeamOne.length; i++) {
                 calculateNFT = LoserBet / topBetsTeamOne.length;
                 getNFT(topPlayersTeamOne[topBetsTeamOne[i]], calculateNFT);
+                //NAO, PASSA O ARRAY INTEIRO DAS TOP BETS PRA FUNCAO DO NFT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             }
         }
 

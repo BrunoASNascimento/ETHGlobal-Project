@@ -15,7 +15,9 @@ import pytest
 class TestGame:
     @pytest.fixture
     def game(self):
-        return deploy_game(5, "team1", "team2")
+        return deploy_game(
+            5, bytes("team1", encoding="utf8"), bytes("team1", encoding="utf8")
+        )
 
     @pytest.fixture
     def team1(self):
