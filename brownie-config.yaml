@@ -9,7 +9,7 @@ networks:
   default: development
   development:
     verify: False
-  mumbai:
+  polygon-test:
     verify: False
 wallets:
   from_key: ${PRIVATE_KEY}
