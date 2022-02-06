@@ -49,9 +49,18 @@ class TestGame:
     # test que o endereco da aposta NAO entra na lista top 5 se nao for top 5
     # test que o endereco da aposta pode aparecer nos dois times
     # test que o endereco da aposta, caso ja exista, aumente o valor da sua aposta na lista de valores de apostas
-    # test que o endereco da aposta, caso ja exista no top5, aumente o valor da sua aposta na lista de top5
 
-    def same_bet_value(self, game, team1, team2):
+    def test_sum_of_bets(self, game, team1, team2):
+        # test que o endereco da aposta, caso ja exista no top5, aumente o valor da sua aposta na lista de top5
+        game.playersTeamOne = team1[0]
+        game.playersTeamTwo = team2[0]
+        game.bet(1, 7)
+        game.bet(2, 7)
+        game.bet(2, 7)
+        assert game.totalBetsOne(team1[1]) == 7
+        assert game.totalBetsTwo(team2[1]) == 14
+
+    def test_same_bet_value(self, game, team1, team2):
         # test que apostas iguais ao minimo nao entram no top5
         game.playersTeamOne = team1[0]
         game.playersTeamTwo = team2[0]
