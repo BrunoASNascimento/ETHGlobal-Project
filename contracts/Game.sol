@@ -162,6 +162,7 @@ contract Game {
     }
 
     function distributePrizes() public {
+        require(msg.sender == owner);
         open_to_bet = false;
         uint256 LoserBet = 0;
         uint256 WinnerBet = 0;
@@ -184,22 +185,30 @@ contract Game {
             LoserBet = totalBetsOne;
             WinnerBet = totalBetsTwo;
         }
-        //LoserBet tá sobrando
 
         if (teamWinner == 1) {
-            //CADE O CASO TIME 2 GANHE?????????????????????????????????????????????????????????????????????????????
             //Back money
             for (uint256 j = 0; j < playersTeamOne.length; j++) {
                 playersTeamOne[j].transfer(
-                    ((10000 + (10000 / WinnerBet))) / 10000
+                    (((10000 + (10000 / WinnerBet))) / 10000) - gasCost
                 );
             }
-
             //NFT
             for (uint256 i = 0; i < topBetsTeamOne.length; i++) {
                 calculateNFT = LoserBet / topBetsTeamOne.length;
                 getNFT(topPlayersTeamOne[topBetsTeamOne[i]], calculateNFT);
-                //NAO, PASSA O ARRAY INTEIRO DAS TOP BETS PRA FUNCAO DO NFT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            }
+        } else {
+            //Back money
+            for (uint256 j = 0; j < playersTeamTwo.length; j++) {
+                playersTeamTwo[j].transfer(
+                    (((10000 + (10000 / WinnerBet))) / 10000) - gasCost
+                );
+            }
+            //NFT
+            for (uint256 i = 0; i < topBetsTeamTwo.length; i++) {
+                calculateNFT = LoserBet / topBetsTeamTwo.length;
+                getNFT(topPlayersTeamTwo[topBetsTeamTwo[i]], calculateNFT);
             }
         }
 
